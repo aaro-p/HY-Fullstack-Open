@@ -10,7 +10,7 @@ const App = () => {
     const [newNumber, setNewNumber] = useState("");
     const [filteredPersons, setFilteredPersons] = useState([{}]);
     const [searchWord, setSearchWord] = useState("");
-
+    console.log(persons);
     useEffect(() => {
         personsService.getPersons().then((response) => setPersons(response));
     }, []);
@@ -32,16 +32,19 @@ const App = () => {
                 const updateObject = personToUpdate.reduce((p) => {
                     return p;
                 });
-                personsService.updatePerson({
-                    ...updateObject,
-                    number: newNumber,
-                });
+                personsService
+                    .updatePerson({
+                        ...updateObject,
+                        number: newNumber,
+                    })
+                    .then((result) =>
+                        setPersons(
+                            persons.map((person) =>
+                                person.id !== result.id ? person : result
+                            )
+                        )
+                    );
             }
-            personsService
-                .getPersons()
-                .then((response) => setPersons(response));
-            setNewName("");
-            setNewNumber("");
         }
     };
 
