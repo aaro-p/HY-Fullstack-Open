@@ -1,5 +1,4 @@
-const Results = ({ data, onClick }) => {
-    console.log(data);
+const CountryResults = ({ data, onClick }) => {
     return data.map((country, index) => (
         <div key={index}>
             {country.name.common}
@@ -10,4 +9,4 @@ const Results = ({ data, onClick }) => {
     ));
 };
 
-export default Results;
+export default CountryResults;

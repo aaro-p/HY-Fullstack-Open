@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Search from "./components/Search";
-import SearchResults from "./components/SearchResults";
+import CountrySection from "./components/CountrySection";
 import countryService from "./services/countryService";
 
 function App() {
@@ -15,10 +15,18 @@ function App() {
         setSearchWord(event.target.value);
     };
 
+    const toggleCountry = (country) => {
+        setSearchWord(country);
+    };
+
     return (
         <div>
             <Search onChange={handleInputChange} />
-            <SearchResults data={countryData} searchWord={searchWord} />
+            <CountrySection
+                data={countryData}
+                searchWord={searchWord}
+                handleToggle={toggleCountry}
+            />
         </div>
     );
 }
