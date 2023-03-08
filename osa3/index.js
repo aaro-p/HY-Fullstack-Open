@@ -6,7 +6,8 @@ const tinyCustom =
     ":method :url :status :res[content-length] - :response-time ms :DATA";
 const BASE_URL = "http://localhost:3001/api/notes";
 const cors = require("cors");
-const mongoose = require("mongoose");
+const Person = require("./models/person");
+const { response } = require("express");
 
 app.use(express.static("build"));
 app.use(cors());
@@ -41,18 +42,10 @@ let persons = [
     },
 ];
 
-const generateId = () => {
-    const maxId =
-        persons.length > 0 ? Math.max(...persons.map((n) => n.id)) : 0;
-    return maxId + 1;
-};
-
-const namesMatch = (name) => {
-    return persons.some((person) => person.name === name);
-};
-
 app.get("/api/persons", (_, res) => {
-    res.json(persons);
+    Person.find({}).then((result) => {
+        res.json(result);
+    });
 });
 
 app.get("/api/info", (_, res) => {
@@ -79,19 +72,14 @@ app.post("/api/persons/", (req, res) => {
             error: "name and number is required",
         });
     }
-    if (namesMatch(body.name)) {
-        return res.status(400).json({
-            error: "name must be unique",
-        });
-    }
-    const postedPerson = {
+    const postedPerson = new Person({
         name: body.name,
         number: body.number,
-        id: generateId(),
-    };
+    });
 
-    persons = persons.concat(postedPerson);
-    res.json(postedPerson);
+    postedPerson.save().then((savedPerson) => {
+        res.json(savedPerson);
+    });
 });
 
 app.delete("/api/persons/:id", (req, res) => {
