@@ -33,6 +33,13 @@ const App = () => {
                     });
                     setNewName("");
                     setNewNumber("");
+                })
+                .catch((error) => {
+                    console.log(error);
+                    setMessage({
+                        message: `${error.response.data.error}`,
+                        type: "error",
+                    });
                 });
             setTimeout(() => {
                 setMessage(null);
@@ -57,6 +64,13 @@ const App = () => {
                         setMessage({
                             message: `${result.name}'s number updated`,
                             type: "info",
+                        });
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                        setMessage({
+                            message: `${error.response.data.error}`,
+                            type: "error",
                         });
                     });
                 setNewNumber("");

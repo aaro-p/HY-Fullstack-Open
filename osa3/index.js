@@ -6,6 +6,7 @@ const tinyCustom =
     ":method :url :status :res[content-length] - :response-time ms :DATA";
 const cors = require("cors");
 const Person = require("./models/person");
+require("dotenv").config();
 
 app.use(express.static("build"));
 app.use(cors());
@@ -49,11 +50,11 @@ app.get("/api/persons/:id", (req, res, next) => {
 
 app.post("/api/persons/", (req, res, next) => {
     const body = req.body;
-    if (!body.name || !body.number) {
-        return res.status(400).json({
-            error: "name and number is required",
-        });
-    }
+    // if (!body.name || !body.number) {
+    //     return res.status(400).json({
+    //         error: "name and number is required",
+    //     });
+    // }
     const postedPerson = new Person({
         name: body.name,
         number: body.number,
@@ -75,7 +76,11 @@ app.put("/api/persons/:id", (req, res, next) => {
         number: body.number,
     };
 
-    Person.findByIdAndUpdate(id, updatedNumber, { new: true })
+    Person.findByIdAndUpdate(id, updatedNumber, {
+        new: true,
+        runValidators: true,
+        context: "query",
+    })
         .then((updatedPerson) => {
             res.json(updatedPerson);
         })
@@ -100,6 +105,8 @@ app.use(unknownEndpoint);
 const errorHanlderMiddleWare = (error, req, res, next) => {
     if (error.name === "CastError") {
         return res.status(400).send({ error: "malformatted id" });
+    } else if (error.name === "ValidationError") {
+        return res.status(400).json({ error: error.message });
     }
     next(error);
 };
