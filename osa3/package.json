@@ -10,7 +10,8 @@
         "build:ui": "rm -rf build && cd ../osa2/puhelinluettelo && cp -r build ../../osa3",
         "deploy": "fly deploy",
         "deploy:full": "npm run build:ui && npm run deploy",
-        "logs:prod": "fly logs"
+        "logs:prod": "fly logs",
+        "lint": "eslint ."
     },
     "repository": {
         "type": "git",
@@ -23,6 +24,7 @@
     },
     "homepage": "https://github.com/aaro-p/HY-Fullstack-Open#readme",
     "devDependencies": {
+        "eslint": "^8.36.0",
         "nodemon": "^2.0.21"
     },
     "dependencies": {
