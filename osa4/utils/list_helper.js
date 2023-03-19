@@ -30,7 +30,7 @@ const mostLikes = (blogs) => {
 
     const auhtorWithMostLikes = Object.keys(authors).reduce((a,b) => authors[a] > authors[b] ? a : b)
     const mostLiked = { auhtor: auhtorWithMostLikes, likes: authors[auhtorWithMostLikes] }
-    return(mostLiked)
+    return mostLiked
 }
 
 module.exports = {
