@@ -4,10 +4,16 @@ const app = require('../app')
 const api = supertest(app)
 const Blog = require('../models/blog')
 const testHelper = require('./test_helper')
+const User = require('../models/user')
+const jwt = require('jsonwebtoken')
+require('dotenv').config()
+
+var token
 
 beforeEach(async () => {
     await Blog.deleteMany({})
     await Blog.insertMany(testHelper.initialBlogs)
+    await User.deleteMany({})
 })
 
 describe('GET BLOGS', () => {
@@ -28,24 +34,44 @@ describe('GET BLOGS', () => {
 })
 
 describe('POST BLOG', () => {
-    test('blog can be added to DB', async () => {
+    beforeEach(async () => {
+
+        const user = await new User({
+            username: 'jestTest',
+            name: 'name',
+            passwordHash: 'secret'
+        }).save()
+
+        const tokenCredentials = { username: user.username, id: user.id }
+        token = jwt.sign( tokenCredentials , process.env.SECRET)
+    })
+    test('authorized user can add blog', async () => {
         const testBlog = {
             title: 'new blog',
             author: 'jane doe',
             url: 'https://www.janesblog.com',
             likes: 1,
         }
-
         await api.post('/api/blogs')
             .send(testBlog)
+            .set('Authorization', `Bearer ${token}`)
             .expect(201)
 
         const blogsInDb = await testHelper.blogsInDb()
         expect(blogsInDb).toHaveLength(testHelper.initialBlogs.length + 1)
 
         expect(blogsInDb[blogsInDb.length - 1]).toMatchObject(testBlog)
-
-
+    })
+    test('unauthorized user cannot add blog', async () => {
+        const testBlog = {
+            title: 'new blog',
+            author: 'jane doe',
+            url: 'https://www.janesblog.com',
+            likes: 1,
+        }
+        await api.post('/api/blogs')
+            .send(testBlog)
+            .expect(401)
     })
     test('added blog likes property should be 0 for default', async () => {
         const testBlog = {
@@ -56,6 +82,7 @@ describe('POST BLOG', () => {
 
         await api.post('/api/blogs')
             .send(testBlog)
+            .set('Authorization', `Bearer ${token}`)
             .expect(201)
         const blogsInDb = await testHelper.blogsInDb()
         expect(blogsInDb).toHaveLength(testHelper.initialBlogs.length + 1)
@@ -69,21 +96,51 @@ describe('POST BLOG', () => {
         }
         await api.post('/api/blogs')
             .send(testBlog)
+            .set('Authorization', `Bearer ${token}`)
             .expect(400)
     })
 })
 
 describe('BLOG DELETE', () => {
-    test('delete is successful', async () => {
-        const { _id } = testHelper.initialBlogs[1]
+    let blog
+    beforeEach(async () => {
+        const user = await new User({
+            username: 'jestTest',
+            name: 'name',
+            passwordHash: 'secret'
+        }).save()
+
+        const blogToDelete = await new Blog({
+            title: 'Cool blog',
+            author: 'John Doe',
+            url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
+            likes: 0,
+            user: user.id
+        }).save()
+        const tokenCredentials = { username: user.username, id: user.id }
+        token = jwt.sign( tokenCredentials , process.env.SECRET)
+        blog = blogToDelete
+    })
+
+    test('only blog creator can delete blog', async () => {
+        const { _id } = blog
         const blogsBeforeDelete = await testHelper.blogsInDb()
         await api.delete(`/api/blogs/${_id}`)
+            .set('Authorization', `Bearer ${token}`)
             .expect(204)
         const blogsAfterDelete = await testHelper.blogsInDb()
 
         expect(blogsAfterDelete.length).toBe(blogsBeforeDelete.length - 1)
-        expect(blogsAfterDelete).not.toContain(testHelper.initialBlogs[1])
+        expect(blogsAfterDelete).not.toContain(blog)
 
+    })
+    test('unauthorized user cannot delete blog', async () => {
+        const { _id } = testHelper.initialBlogs[1]
+        await api.delete(`/api/blogs/${_id}`)
+            .expect(401)
+        const blogsAfterDelete = await testHelper.blogsInDb()
+
+        expect(blogsAfterDelete.length).toBe(blogsAfterDelete.length)
     })
 })
 
