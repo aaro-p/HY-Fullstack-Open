@@ -108,7 +108,6 @@ const App = () => {
         <Notification type={notification.type} message={notification.message}/>
       }
       {!user &&
-        <Togglable buttonLabel="log in">
           <LoginFrom
             username={username}
             password={password}
@@ -116,7 +115,6 @@ const App = () => {
             handleUserNameChange={({ target }) => setUserName(target.value)}
             handlePasswordChange={({ target }) => setPassWord(target.value)}
           />
-        </Togglable>
       }
       {user &&
         <div>
