@@ -1,13 +1,12 @@
 import { useState } from 'react'
 import PropTypes from 'prop-types'
 
-const Blog = ({ blog, handleLike, handleDelete, user }) => {
+const Blog = ({ blog, handleLike, handleDelete, userName }) => {
 
   const [toggleContent, setToggleContent] = useState(false)
   const handleToggle = () => {
     setToggleContent(!toggleContent)
   }
-
   const updateBlog = (e) => {
     e.preventDefault()
     handleLike(blog.id,{
@@ -27,7 +26,7 @@ const Blog = ({ blog, handleLike, handleDelete, user }) => {
 
   return (
     <div className="blog-content">
-      {blog.title} {blog.author} {' '}
+      {blog.title} {blog.author}
       <button onClick={handleToggle}>
         {buttonContent}
       </button>
@@ -37,13 +36,13 @@ const Blog = ({ blog, handleLike, handleDelete, user }) => {
             {blog.url}
           </div>
           <div>
-            likes {blog.likes} {' '}
+            likes { blog.likes }
             <button onClick={updateBlog}>like</button>
           </div>
           <div>
             {blog.user.name}
           </div>
-          {user.name === blog.user.name &&
+          {userName === blog.user.name &&
             <button onClick={removeBlog}>remove</button>
           }
         </>
@@ -56,7 +55,7 @@ Blog.propTypes = {
   blog: PropTypes.object.isRequired,
   handleLike: PropTypes.func.isRequired,
   handleDelete: PropTypes.func.isRequired,
-  user: PropTypes.object.isRequired,
+  userName: PropTypes.string.isRequired,
 }
 
 export default Blog
