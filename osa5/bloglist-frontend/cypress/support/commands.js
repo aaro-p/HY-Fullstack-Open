@@ -3,10 +3,11 @@ Cypress.Commands.add("loginUser",  (creds) => {
     cy.visit("http://localhost:3000")
 })
 
-Cypress.Commands.add("addBlog", () => {
+Cypress.Commands.add("addBlog", (content) => {
     cy.contains("create new blog").click()
-    cy.get("#title").type("test blog")
-    cy.get("#author").type("Blog Blogger")
-    cy.get("#url").type("www.test.com")
+    cy.get("#title").type(content.title)
+    cy.get("#author").type(content.author)
+    cy.get("#url").type(content.url)
     cy.get(".createBlog").submit()
+    cy.contains("cancel").click()
 })
